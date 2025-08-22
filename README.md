@@ -6,7 +6,7 @@ This module is meant to simplfy the creation of a domain entry and TLS Certifcat
 
 ```hcl
 module "tf_domain_and_tls" {
-    source           = "keithrozario/keithrozario/domain-tls/google"
+    source           = "keithrozario/domain-tls/google"
     sub_domain       = "sub"
     rrdatas          = ["123.4.5.6"]
     record_type      = "A"
