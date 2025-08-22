@@ -33,3 +33,9 @@ variable "rrdatas" {
   type = list(string)
   description = "rrdatas for dns entry"
 }
+
+variable "record_type" {
+  type = string
+  description = "record type for dns entry"
+  default = "A"
+}

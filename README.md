@@ -13,7 +13,7 @@ module "tf_domain_and_tls" {
     base_domain      = "example.com"
     dns_project_name = "project-123"
     dns_zone_name    = "zone-123"
-    regional_location = "us-central1"
+    region           = "us-central1"
 }
 ```
 
@@ -27,6 +27,8 @@ module "tf_domain_and_tls" {
 | base_domain | The base domain of the FQDN to deploy | string | none | yes
 | dns_project_name | The GCP Project ID that contains the DNS ZONE in Cloud DNS | string | none | yes
 | dns_zone_name | The name of the DNS ZONE in Cloud DNS | string | none | yes
+| region | The region to deploy the certificate in | string | none | yes
+
 
 ## Outputs
 

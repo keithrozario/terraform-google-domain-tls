@@ -5,7 +5,7 @@ module "dns_record" {
   base_domain      = var.base_domain
   dns_project_name = var.dns_project_name
   dns_zone_name    = var.dns_zone_name
-  record_type      = "A"
+  record_type      = var.record_type
 }
 
 module "tls_cert" {
