@@ -15,6 +15,13 @@ module "tf_domain_and_tls" {
     dns_zone_name    = "zone-123"
     region           = "us-central1"
 }
+
+# Target HTTP Proxy
+resource "google_compute_target_https_proxy" "https_proxy" {
+  name            = "https-proxy"
+  url_map         = google_compute_url_map.url_map.id
+  certificate_map = module.tf_domain_and_tls.ssl_certificates
+}
 ```
 
 ## Inputs
