@@ -1,45 +1,58 @@
-resource "google_certificate_manager_dns_authorization" "this" {
-  name        = "${var.sub_domain}-dns-auth"
-  location    = "global"
-  description = var.sub_domain
-  domain      = "${var.sub_domain}.${var.base_domain}"
+locals {
+  map_name = var.sub_domains[0]
 }
 
+resource "google_certificate_manager_dns_authorization" "this" {
+  for_each    = toset(var.sub_domains)
+  name        = "${each.key}-dns-auth"
+  location    = "global"
+  description = each.key
+  domain      = "${each.key}.${var.base_domain}"
+}
 
 resource "google_dns_record_set" "this" {
+  for_each     = toset(var.sub_domains)
   project      = var.dns_project_name
   managed_zone = var.dns_zone_name
-  name         = google_certificate_manager_dns_authorization.this.dns_resource_record.0.name
-  type         = google_certificate_manager_dns_authorization.this.dns_resource_record.0.type
+  name         = google_certificate_manager_dns_authorization.this[each.key].dns_resource_record.0.name
+  type         = google_certificate_manager_dns_authorization.this[each.key].dns_resource_record.0.type
   ttl          = 5
   rrdatas = [
-    google_certificate_manager_dns_authorization.this.dns_resource_record.0.data
+    google_certificate_manager_dns_authorization.this[each.key].dns_resource_record.0.data
   ]
 }
 
 resource "google_certificate_manager_certificate" "this" {
-  name        = "${var.sub_domain}-cert"
+  for_each    = toset(var.sub_domains)
+  name        = "${each.key}-cert"
   description = "Cert issued by Terraform"
-  # Scope must be DEFAULT for Load Balancer
-  scope = "DEFAULT"
+  scope       = "DEFAULT"
   managed {
     domains = [
-      google_certificate_manager_dns_authorization.this.domain
+      google_certificate_manager_dns_authorization.this[each.key].domain
     ]
     dns_authorizations = [
-      google_certificate_manager_dns_authorization.this.id
+      google_certificate_manager_dns_authorization.this[each.key].id
     ]
   }
 }
 
 resource "google_certificate_manager_certificate_map" "this" {
-  name        = var.sub_domain
-  description = var.sub_domain
+  name        = local.map_name
+  description = "Certificate map for subdomains: ${join(", ", var.sub_domains)}"
 }
 
-resource "google_certificate_manager_certificate_map_entry" "this" {
-  name         = var.sub_domain
+resource "google_certificate_manager_certificate_map_entry" "primary" {
+  name         = local.map_name
   map          = google_certificate_manager_certificate_map.this.name
-  certificates = [google_certificate_manager_certificate.this.id]
+  certificates = [google_certificate_manager_certificate.this[local.map_name].id]
   matcher      = "PRIMARY"
+}
+
+resource "google_certificate_manager_certificate_map_entry" "subdomains" {
+  for_each     = toset(slice(var.sub_domains, 1, length(var.sub_domains)))
+  name         = each.key
+  map          = google_certificate_manager_certificate_map.this.name
+  certificates = [google_certificate_manager_certificate.this[each.key].id]
+  hostname     = "${each.key}.${var.base_domain}"
 }

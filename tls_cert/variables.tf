@@ -3,14 +3,14 @@ variable "regional_location" {
   description = "location of additional regional tls certificate"
 }
 
-variable "sub_domain" {
-  type        = string
-  description = "Subdomain the FQDN will be <subdomain>.<base_domain>"
+variable "sub_domains" {
+  type        = list(string)
+  description = "List of subdomains"
 }
 
 variable "base_domain" {
   type        = string
-  description = "THe base domain, the FQDN will be <subdomain>.<base_domain>"
+  description = "The base domain"
 }
 
 variable "dns_project_name" {

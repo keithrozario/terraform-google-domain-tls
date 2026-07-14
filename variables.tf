@@ -10,7 +10,14 @@ variable "base_domain" {
 
 variable "sub_domain" {
   type        = string
-  description = "Sub domain for the custom domain. The FQDN is <sub_domain>.<base_domain>"
+  description = "Single subdomain (legacy, please use sub_domains instead)"
+  default     = ""
+}
+
+variable "sub_domains" {
+  type        = list(string)
+  description = "List of subdomains to include in the certificate map and DNS entries"
+  default     = []
 }
 
 variable "dns_project_name" {
